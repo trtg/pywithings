@@ -4,6 +4,7 @@ import shelve #for persistent caching of tokens, hashes,etc.
 
 #get your consumer key and secret after registering as a developer here: https://oauth.withings.com/en/partner/add
 
+#FIXME add method to set default units and make it an optional argument to the constructor
 class Withings:
     def __init__(self,email_address,consumer_key,consumer_secret,cache_name='tokens.dat'):
         if email_address == None:
