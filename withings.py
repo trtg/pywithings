@@ -29,6 +29,8 @@ class Withings:
                 authorize_url='https://oauth.withings.com/account/authorize',
                 header_auth=True)
 
+        self.access_token = self.cache.get('withings_access_token',None)
+        self.access_token_secret = self.cache.get('withings_access_token_secret',None)
         self.request_token =  self.cache.get('withings_request_token',None)
         self.request_token_secret =  self.cache.get('withings_request_token_secret',None)
         self.pin= self.cache.get('withings_pin',None)
@@ -38,10 +40,11 @@ class Withings:
             self.get_request_token()
 
         #If tokens have expired, get new ones
-        #for some reason, periodically it just decides not to return an access token but you
+        #for some reason, periodically withings just decides not to return an access token but you
         #can keep accessing the data regardless?! Not sure how to know if lack of response
-        #here is actually a problem
-        if( not self.get_access_token()):
+        #here is actually a problem or how to know if token has expired
+        #if( not self.get_access_token()):
+        if( self.request_token is None):
             self.get_request_token()
             got_access_token=self.get_access_token()
             if( not got_access_token):
@@ -71,11 +74,12 @@ class Withings:
         authorize_url=self.oauth.get_authorize_url(self.request_token)
         #the pin you want here is the string that appears after oauth_verifier on the page served
         #by the authorize_url
-        print 'Visit this URL in yuor browser then login: ' + authorize_url
+        print 'Visit this URL in your browser then login: ' + authorize_url
         self.pin = raw_input('Enter PIN from browser: ')
         self.cache['withings_request_token']=self.request_token
         self.cache['withings_request_token_secret']=self.request_token_secret
         self.cache['withings_pin']=self.pin
+        print "withings_pin is ",self.cache.get('withings_pin')
 
     def need_request_token(self):
         #created this method because i'm not clear when request tokens need to be obtained, or how often
@@ -94,6 +98,8 @@ class Withings:
         print response.content
         self.access_token=data.get('oauth_token')
         self.access_token_secret=data.get('oauth_token_secret')
+        self.cache['withings_access_token']=self.access_token
+        self.cache['withings_access_token_secret']=self.access_token_secret
         if not(self.access_token) or not(self.access_token_secret):
             print "access token expired "
             return False
