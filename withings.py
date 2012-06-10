@@ -36,7 +36,8 @@ class Withings:
         self.pin= self.cache.get('withings_pin',None)
         
         #If this is our first time running- get new tokens 
-        if (self.need_request_token()):
+        #if (self.need_request_token()):
+        if (True):
             self.get_request_token()
 
         #If tokens have expired, get new ones
@@ -70,7 +71,7 @@ class Withings:
 
 
     def get_request_token(self):
-        self.request_token,self.request_token_secret = self.oauth.get_request_token(http_method='GET')
+        self.request_token,self.request_token_secret = self.oauth.get_request_token(method='GET')
         authorize_url=self.oauth.get_authorize_url(self.request_token)
         #the pin you want here is the string that appears after oauth_verifier on the page served
         #by the authorize_url
@@ -111,13 +112,14 @@ class Withings:
             self.compute_hash()
         print "using hash ",self.reqhash
         params={'action': 'getuserslist','email':self.email_address,'hash':self.reqhash} #how to determine public key and userid
-        response=self.oauth.request(
-                'GET',
+        response=self.oauth.get(
                 'http://wbsapi.withings.net/account',
-                self.access_token,
-                self.access_token_secret,
+                params=params,
+                access_token=self.access_token,
+                access_token_secret=self.access_token_secret,
                 header_auth=True,
-                params=params)
+                )
+
         data=response.content
         print data
         body=data['body']
@@ -137,13 +139,13 @@ class Withings:
     #certain requests require sending a signature hash
     def compute_hash(self):
         params={'action': 'get'} #this fetches the once needed to compute the hash
-        response=self.oauth.request(
-            'GET',
-            'http://wbsapi.withings.net/once',
-            self.access_token,
-            self.access_token_secret,
-            header_auth=True,
-            params=params)
+        response=self.oauth.get(
+           'http://wbsapi.withings.net/once',
+            params=params,
+            access_token=self.access_token,
+            access_token_secret=self.access_token_secret,
+            header_auth=True
+            )
         #response.content is a dictionary with status and body as keys
         data=response.content
         body=data['body']
@@ -157,28 +159,27 @@ class Withings:
 
     #only need to do this once
     def make_data_public(self):
-        return
         params={'action': 'update','userid': self.user_id,'publickey': self.public_key,'ispublic': '7'} #set all data to be public
-        response=self.oauth.request(
-                'GET',
+        response=self.oauth.get(
                 'http://wbsapi.withings.net/user',
-                self.access_token,
-                self.access_token_secret,
-                header_auth=True,
-                params=params)
+                params=params,
+                access_token=self.access_token,
+                access_token_secret=self.access_token_secret,
+                header_auth=True)
 
     def get_weights(self):
         if (self.public_key==None):
             self.get_public_key_and_user_id()
         print "user_id in get_weights ",self.user_id
         params={'action': 'getmeas','userid': self.user_id,'publickey': self.public_key,'startdate': '0'} #how to determine first and last name
-        response=self.oauth.request(
-                'GET',
+
+        response=self.oauth.get(
                 'http://wbsapi.withings.net/measure',
-                self.access_token,
-                self.access_token_secret,
-                header_auth=True,
-                params=params)
+                params=params,
+                access_token=self.access_token,
+                access_token_secret=self.access_token_secret,
+                header_auth=True)
+
         data=response.content
         body=data['body']
         measuregroups=body['measuregrps']
