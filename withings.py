@@ -36,20 +36,14 @@ class Withings:
         self.pin= self.cache.get('withings_pin',None)
         
         #If this is our first time running- get new tokens 
-        #if (self.need_request_token()):
-        if (True):
-            self.get_request_token()
-
-        #If tokens have expired, get new ones
-        #for some reason, periodically withings just decides not to return an access token but you
-        #can keep accessing the data regardless?! Not sure how to know if lack of response
-        #here is actually a problem or how to know if token has expired
-        #if( not self.get_access_token()):
-        if( self.request_token is None):
+        #FIXME also need to consider case where tokens expire
+        #maybe expiration will be in the response status of requests?
+        if (self.need_request_token()):
             self.get_request_token()
             got_access_token=self.get_access_token()
             if( not got_access_token):
                 print "Error: Unable to get access token"
+
         #Maybe you always need to recompute the hash/get a new once to avoid expiration?
         #self.reqhash = self.cache.get('withings_reqhash',None)
         #self.public_key = self.cache.get('withings_public_key',None)
@@ -90,15 +84,14 @@ class Withings:
             return False
 
     def get_access_token(self):
-        print "in get_access_token"
-        response=self.oauth.get_access_token(self.request_token,
-            self.request_token_secret,
-            http_method='GET',
-            oauth_verifier=self.pin)
+        response=self.oauth.get_access_token('GET',
+                request_token=self.request_token,
+                request_token_secret=self.request_token_secret,
+                params={'oauth_verifier':self.pin})
         data=response.content
         print response.content
-        self.access_token=data.get('oauth_token')
-        self.access_token_secret=data.get('oauth_token_secret')
+        self.access_token=data.get('oauth_token',None)
+        self.access_token_secret=data.get('oauth_token_secret',None)
         self.cache['withings_access_token']=self.access_token
         self.cache['withings_access_token_secret']=self.access_token_secret
         if not(self.access_token) or not(self.access_token_secret):
