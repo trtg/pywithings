@@ -6,6 +6,7 @@ Get your consumer key and secret after registering
 as a developer here: https://oauth.withings.com/en/partner/add
 
 Install rauth:
+
     $ easy_install rauth
 
 or
