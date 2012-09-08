@@ -5,12 +5,12 @@ as a developer here: https://oauth.withings.com/en/partner/add
 
 #Sample usage
 
-consumer_key='your_consumer_key'
-consumer_secret='your_consumer_secret_here'
+    consumer_key='your_consumer_key'
+    consumer_secret='your_consumer_secret_here'
 
-wobj=Withings('youremail@mail.com',consumer_key,consumer_secret)
-measurements = wobj.get_meas()
-(dates,weights)=wobj.get_weights(measurements,units="lbs")
+    wobj=Withings('youremail@mail.com',consumer_key,consumer_secret)
+    measurements = wobj.get_meas()
+    (dates,weights)=wobj.get_weights(measurements,units="lbs")
 
 That's it- at this point weights will contain an array of weight measurements and dates will be the dates on  which those measurements were taken
 
