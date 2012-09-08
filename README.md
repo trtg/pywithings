@@ -1,7 +1,20 @@
 pywithings
 ==========
+Get your consumer key and secret after registering 
+as a developer here: https://oauth.withings.com/en/partner/add
 
-A python module for accessing Withing's wireless scale data
+#Sample usage
+
+consumer_key='your_consumer_key'
+consumer_secret='your_consumer_secret_here'
+
+wobj=Withings('youremail@mail.com',consumer_key,consumer_secret)
+measurements = wobj.get_meas()
+(dates,weights)=wobj.get_weights(measurements,units="lbs")
+
+That's it- at this point weights will contain an array of weight measurements and dates will be the dates on  which those measurements were taken
+
+#API methods
 
 ###get_meas(self,devtype=0,startdate=None,enddate=None):
 This method retrieves the raw json provided by withings getmeas API method which by default contains 
